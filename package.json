@@ -1,0 +1,122 @@
+{
+	"name": "romly-command-palette-de-outline",
+	"displayName": "Romly Command Palette de Outline",
+	"publisher": "Romly",
+	"description": "Show document outline in the command palette.",
+	"version": "1.0.0",
+	"license": "See LICENSE.txt",
+	"engines": {
+		"vscode": "^1.107.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"icon": "images/icon.png",
+	"galleryBanner": {
+		"color": "#00a0d9",
+		"theme": "dark"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Romly-Romly/romly-command-palette-de-outline"
+	},
+	"bugs": {
+		"url": "https://github.com/Romly-Romly/romly-command-palette-de-outline"
+	},
+
+	"activationEvents": [],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "romly-command-palette-de-outline.showOutline",
+				"title": "%commandTitle.showOutline%",
+				"category": "Romly"
+			}
+		],
+		"configuration": {
+			"title": "Romly Command Palette de Outline",
+			"properties": {
+				"Romly-CommandPalette-de-Outline.showLineNumber": {
+					"type": "boolean",
+					"default": true,
+					"description": "%description.showLineNumber%"
+				},
+				"Romly-CommandPalette-de-Outline.indentString": {
+					"type": "string",
+					"default": "        ",
+					"description": "%description.indentString%"
+				},
+				"Romly-CommandPalette-de-Outline.markdown.stripHeaderMarkers": {
+					"type": "boolean",
+					"default": true,
+					"description": "%description.markdown.stripHeaderMarkers%"
+				},
+				"Romly-CommandPalette-de-Outline.symbolFilters": {
+					"type": "array",
+					"default": [],
+					"description": "%description.symbolFilters%",
+					"items": {
+						"type": "object",
+						"properties": {
+							"documentPattern": {
+								"type": "string",
+								"description": "%description.symbolFilters.documentPattern%"
+							},
+							"filters": {
+								"type": "array",
+								"description": "%description.symbolFilters.filters%",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"Romly-CommandPalette-de-Outline.debug.showCopySymbolsMenu": {
+					"type": "boolean",
+					"default": false,
+					"description": "%description.debug.showCopySymbolsMenu%"
+				},
+				"Romly-CommandPalette-de-Outline.debug.showSymbolKindName": {
+					"type": "boolean",
+					"default": false,
+					"description": "%description.debug.showSymbolKindName%"
+				}
+			}
+		}
+	},
+	"l10n": "./l10n",
+	"scripts": {
+		"vscode:prepublish": "npm run package",
+		"compile": "npm run check-types && npm run lint && node esbuild.js",
+		"watch": "npm-run-all -p watch:*",
+		"watch:esbuild": "node esbuild.js --watch",
+		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+		"package": "npm run check-types && npm run lint && node esbuild.js --production",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "npm run compile-tests && npm run compile && npm run lint",
+		"check-types": "tsc --noEmit",
+		"lint": "eslint src --ext ts",
+		"test": "vscode-test"
+	},
+	"devDependencies": {
+		"@types/minimatch": "^6.0.0",
+		"@types/mocha": "^10.0.6",
+		"@types/node": "20.x",
+		"@types/vscode": "^1.107.0",
+		"@typescript-eslint/eslint-plugin": "^7.11.0",
+		"@typescript-eslint/parser": "^7.11.0",
+		"@vscode/test-cli": "^0.0.9",
+		"@vscode/test-electron": "^2.4.0",
+		"esbuild": "^0.21.5",
+		"eslint": "^8.57.0",
+		"npm-run-all": "^4.1.5",
+		"typescript": "^5.4.5"
+	},
+	"dependencies": {
+		"@vscode/l10n": "^0.0.18",
+		"minimatch": "^10.1.1"
+	}
+}

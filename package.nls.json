@@ -1,0 +1,11 @@
+{
+	"commandTitle.showOutline": "Command Palette de Outline",
+	"description.showLineNumber": "Show line numbers.",
+	"description.indentString": "String used for indentation.",
+	"description.markdown.stripHeaderMarkers": "Strip hash markers from markdown headings.",
+	"description.debug.showCopySymbolsMenu": "Show menu to copy document symbols to clipboard for debugging.",
+	"description.debug.showSymbolKindName": "Show symbol kind name instead of icon.",
+	"description.symbolFilters": "Specify filters for symbols to hide.",
+	"description.symbolFilters.documentPattern": "Glob pattern for file names to apply this filter list. Ex: **/*.ts",
+	"description.symbolFilters.filters": "List of glob pattern filters matching symbols to hide. Example: [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"]"
+}
