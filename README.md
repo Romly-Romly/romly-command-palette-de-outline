@@ -11,6 +11,7 @@
 - コマンドパレットにドキュメントのアウトラインを表示する。
 - 行番号の表示／非表示を設定可能。
 - シンボルの種類に対するグロブパターンのフィルタで表示しないシンボルを設定可能。
+- シンボルの表示を正規表現でカスタマイズ可能。
 
 ### 必要条件
 
@@ -26,7 +27,7 @@
 * `Romly-CommandPalette-de-Outline.symbolFilters`: TypeScriptのアウトラインなどは関数の引数もシンボルとして表示されてしまい見づらいので、フィルタを指定して非表示にすることができます。下記のように指定します。 `filters` にはシンボルの種類をグロブパターンで指定します。シンボルの種類がわからない時は `Romly-CommandPalette-de-Outline.debug.showSymbolKindName` を `true` にしてアイコンの代わりにシンボルの種類の名前を表示し、確認してください。
 
 	```
-	`Romly-CommandPalette-de-Outline.symbolFilters`: [
+	"Romly-CommandPalette-de-Outline.symbolFilters": [
 		{
 			"documentPattern": "**/*.ts",
 			"filters": [
@@ -46,6 +47,36 @@
 		}
 	]
 	```
+
+* `Romly-CommandPalette-de-Outline.enableSymbolFilters`: `Romly-CommandPalette-de-Outline.symbolFilters` を有効にするかどうかを切り替えます。一時的にフィルタを無効にしたいときなどに。
+* `Romly-CommandPalette-de-Outline.symbolCaptionFormatters`: シンボルの表示をカスタマイズするための置換ルール。下記のような形式で設定します。言語IDはコマンドを呼び出した時にコマンドパレットのプレースホルダーに表示されています。
+
+	```
+	"Romly-CommandPalette-de-Outline.symbolCaptionFormatters": [
+		{
+			"languageIds": ["c"],
+			"formatters": [
+				{
+					"symbolKinds": "Function",
+					"regexp": "^(?<functionName>[a-zA-Z_]\\w*)\\s*\\(",
+					"replacement": "${functionName}"
+				}
+			]
+		},
+		{
+			"languageIds": ["cpp"],
+			"formatters": [
+				{
+					"symbolKinds": ["Function", "Method"],
+					"regexp": "(?<functionName>\\w+)\\s*\\([^)]*\\)(?:\\s*(?<qualifier>const|noexcept|override|final|volatile))*",
+					"replacement": "${functionName} ${qualifier}"
+				}
+			]
+		}
+	],
+	```
+
+* `Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat`: シンボルの表示カスタマイズを有効にするかどうかを切り替えます。一時的に元のシンボル名を表示したい時などに。
 
 ### 既知の問題
 
@@ -86,6 +117,7 @@ An VSCode extension that displays document outlines in the command palette. Allo
 * Display document outline in the command palette.
 * Configurable display/hide line numbers.
 * Filter symbols by kind using glob patterns to hide unwanted symbols.
+* Able to customize symbol display using regular expressions.
 
 ### Requirements
 
@@ -101,7 +133,7 @@ An VSCode extension that displays document outlines in the command palette. Allo
 * `Romly-CommandPalette-de-Outline.symbolFilters`: TypeScript outlines and similar files display function arguments as symbols, making them hard to read, so you can specify filters to hide them. Specify as shown below. In `filters`, specify symbol kinds using glob patterns. If you don't know the symbol kind, set `Romly-CommandPalette-de-Outline.debug.showSymbolKindName` to `true` to display symbol kind names instead of icons, so you can confirm them.
 
 	```
-	`Romly-CommandPalette-de-Outline.symbolFilters`: [
+	"Romly-CommandPalette-de-Outline.symbolFilters": [
 		{
 			"documentPattern": "**/*.ts",
 			"filters": [
@@ -121,6 +153,36 @@ An VSCode extension that displays document outlines in the command palette. Allo
 		}
 	]
 	```
+
+* `Romly-CommandPalette-de-Outline.enableSymbolFilters`: Toggles whether to enable `Romly-CommandPalette-de-Outline.symbolFilters`. Useful when you want to temporarily disable filters.
+* `Romly-CommandPalette-de-Outline.symbolCaptionFormatters`: Replacement rules for customizing symbol display. Configure like the following format. The language ID is displayed in the command palette placeholder when the command is invoked.
+
+	```
+	"Romly-CommandPalette-de-Outline.symbolCaptionFormatters": [
+		{
+			"languageIds": ["c"],
+			"formatters": [
+				{
+					"symbolKinds": "Function",
+					"regexp": "^(?<functionName>[a-zA-Z_]\\w*)\\s*\\(",
+					"replacement": "${functionName}"
+				}
+			]
+		},
+		{
+			"languageIds": ["cpp"],
+			"formatters": [
+				{
+					"symbolKinds": ["Function", "Method"],
+					"regexp": "(?<functionName>\\w+)\\s*\\([^)]*\\)(?:\\s*(?<qualifier>const|noexcept|override|final|volatile))*",
+					"replacement": "${functionName} ${qualifier}"
+				}
+			]
+		}
+	],
+	```
+
+* `Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat`: Toggles whether to enable symbol display customization. Useful when you want to temporarily display the original symbol names.
 
 ### Known Issues
 

@@ -1,7 +1,10 @@
 {
+	"Yes, please": "うん。そうして",
 	"No active text editor.": "アクティブなエディターがありません。",
 	"No document symbols found in document: {0}": "ドキュメント {0} にシンボル情報が見つかりません。",
 	"No symbols to show after filtering in document: {0}": "フィルタを適用した結果、ドキュメント {0} に表示するシンボルがありません。",
 	"Copy Document Symbols to Clipboard": "ドキュメントのシンボル情報をクリップボードにコピー",
-	"for Debug": "デバッグ用"
+	"for Debug": "デバッグ用",
+	"No filter settings found. Shall I put sample filters to the setting file?": "フィルタ設定が無いようです。設定ファイルにサンプルのフィルタを書き込みますか？",
+	"Sample filters have been written to your settings. Please execute the command again.": "サンプルのフィルタを設定ファイルに書き込みました。コマンドを再実行してください。"
 }

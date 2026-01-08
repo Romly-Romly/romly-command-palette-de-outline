@@ -3,7 +3,7 @@
 	"displayName": "Romly Command Palette de Outline",
 	"publisher": "Romly",
 	"description": "Show document outline in the command palette.",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"license": "See LICENSE.txt",
 	"engines": {
 		"vscode": "^1.107.0"
@@ -57,10 +57,15 @@
 					"default": true,
 					"description": "%description.markdown.combineUnnamedStructAndTypedef%"
 				},
+				"Romly-CommandPalette-de-Outline.enableSymbolFilters": {
+					"type": "boolean",
+					"default": true,
+					"description": "%description.enableSymbolFilters%"
+				},
 				"Romly-CommandPalette-de-Outline.symbolFilters": {
 					"type": "array",
 					"default": [],
-					"description": "%description.symbolFilters%",
+					"markdownDescription": "%description.symbolFilters%",
 					"items": {
 						"type": "object",
 						"properties": {
@@ -87,6 +92,70 @@
 					"type": "boolean",
 					"default": false,
 					"description": "%description.debug.showSymbolKindName%"
+				},
+				"Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat": {
+					"type": "boolean",
+					"default": true,
+					"description": "%description.enableSymbolCaptionFormat%"
+				},
+				"Romly-CommandPalette-de-Outline.symbolCaptionFormatters": {
+					"type": "array",
+					"default": [
+						{
+							"languageIds": ["c"],
+							"formatters": [
+								{
+									"symbolKinds": "Function",
+									"regexp": "^(?<functionName>[a-zA-Z_]\\w*)\\s*\\(",
+									"replacement": "${functionName}"
+								}
+							]
+						},
+						{
+							"languageIds": ["cpp"],
+							"formatters": [
+								{
+									"symbolKinds": ["Function", "Method"],
+									"regexp": "(?<functionName>\\w+)\\s*\\([^)]*\\)(?:\\s*(?<qualifier>const|noexcept|override|final|volatile))*",
+									"replacement": "${functionName} ${qualifier}"
+								}
+							]
+						}
+					],
+					"markdownDescription": "%description.symbolCaptionFormatter%",
+					"items": {
+						"type": "object",
+						"properties": {
+							"languageIds": {
+								"type": ["string", "array"],
+								"items": {
+									"type": "string"
+								},
+								"description": "%description.symbolCaptionFormatter.documentPatterns%"
+							},
+							"formatters": {
+								"type": "array",
+								"description": "%description.symbolCaptionFormatter.formatters%",
+								"items": {
+									"symbolKinds": {
+										"type": ["string", "array"],
+										"items": {
+											"type": "string"
+										},
+										"description": "%description.symbolCaptionFormatter.formatter.symbolKinds%"
+									},
+									"regexp": {
+										"type": "string",
+										"description": "%description.symbolCaptionFormatter.formatter.regexp%"
+									},
+									"replacement": {
+										"type": "string",
+										"description": "%description.symbolCaptionFormatter.formatter.replacement%"
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}

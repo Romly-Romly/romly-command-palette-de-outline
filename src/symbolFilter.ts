@@ -56,11 +56,11 @@ export class SymbolFilter
 	private patternCache: Map<string, ParsedPattern> = new Map();
 
 	/**
-	 * 設定を読み込む
+	 * フィルタを設定する。
 	 */
-	loadConfiguration(config: vscode.WorkspaceConfiguration)
+	setConfiguration(filters: SymbolFilterConfig[])
 	{
-		this.configs = config.get<SymbolFilterConfig[]>('symbolFilters', []);
+		this.configs = filters;
 	}
 
 	/**
