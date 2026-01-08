@@ -14,6 +14,30 @@ import { SymbolFilter } from './symbolFilter';
 
 
 
+/**
+ * この拡張機能の識別子
+ */
+const EXTENSION_ID = 'Romly-CommandPalette-de-Outline';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async function showFunctions()
 {
 	const editor = vscode.window.activeTextEditor;
@@ -154,8 +178,10 @@ function decodeSymbols(
 	// 標準では出現順になっていなかったので、先に並び替える。
 	const sortedSymbols = symbols.slice().sort((a, b) =>
 	{
-		const aStart = a.selectionRange.start;
-		const bStart = b.selectionRange.start;
+		// range が全体を含む範囲なので、 selectionRange ではなく range で並び替え
+		const aStart = a.range.start;
+		const bStart = b.range.start;
+
 		if (aStart.line !== bStart.line)
 		{
 			return aStart.line - bStart.line;
@@ -220,6 +246,119 @@ async function makeOutlineObjectList(symbols: vscode.DocumentSymbol[], document:
 
 
 
+/**
+ * 指定された項目の直後にある同じインデントの項目を返す。
+ * @param outlineObjectList
+ * @param index
+ * @returns
+ */
+function findNextSibling(outlineObjectList: MyOutlineObject[], index: number): MyOutlineObject | undefined
+{
+	for (let i = index + 1; i < outlineObjectList.length; i++)
+	{
+		if (outlineObjectList[i].indent === outlineObjectList[index].indent)
+		{
+			return outlineObjectList[i];
+		}
+	}
+
+	return undefined;
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * 指定されたアウトラインオブジェクトが typedef なら true を返す。
+ * @param outlineObject
+ * @returns
+ */
+function isTypedef(outlineObject: MyOutlineObject): boolean
+{
+	return outlineObject.documentSymbol.kind === vscode.SymbolKind.Interface && outlineObject.documentSymbol.detail === 'typedef';
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * 指定されたアウトラインオブジェクトが無名構造体なら true を返す。
+ * @param outlineObject
+ * @returns
+ */
+function isUnnamedStruct(outlineObject: MyOutlineObject | undefined): boolean
+{
+	if (outlineObject)
+	{
+		return outlineObject.documentSymbol.kind === vscode.SymbolKind.Struct && outlineObject.documentSymbol.name.indexOf('__unnamed_struct') >= 0;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * typedef の直後に無名構造体がある場合にそれらをまとめる処理
+ * @param outlineObjectList
+ */
+function combineUnnamedStructAndTypedef(outlineObjectList: MyOutlineObject[])
+{
+	const toRemove: number[] = [];
+	for (let i = 0; i < outlineObjectList.length; i++)
+	{
+		const obj = outlineObjectList[i];
+
+		// これが typedef なら
+		if (isTypedef(obj))
+		{
+			// 直後の同じ階層のものを見つける
+			const nextSibling = findNextSibling(outlineObjectList, i);
+			if (nextSibling && isUnnamedStruct(nextSibling))
+			{
+				// それが無名構造体なら、名前を typedef のものに置き換え、 typedef 側は削除リストへ
+				nextSibling.documentSymbol.name = obj.documentSymbol.name;
+				nextSibling.documentSymbol.detail = obj.documentSymbol.detail;
+				toRemove.push(i);
+			}
+		}
+	}
+
+	// 削除リストにあるものを削除(降順ソートして大きいインデックスから削除)
+	toRemove.sort((a, b) => b - a);
+	toRemove.forEach(index => outlineObjectList.splice(index, 1));
+}
+
+
+
+
+
+
+
+
+
+
 // クイックピック用のアイテムに変換する時のオプション
 class MyConvertOption
 {
@@ -235,16 +374,20 @@ class MyConvertOption
 	// 行番号の桁数。コンストラクタで自動的に算出される。
 	readonly lineNumberDigits: number;
 
-	indentString: string = '';
+	readonly indentString: string = '';
 
 	// シンボルの種類名を表示する？
-	showSymbolKindName: boolean = false;
+	readonly showSymbolKindName: boolean = false;
 
-	constructor (languageId: string, showLineNumber: boolean, totalLines: number, stripMarkdownHeadingMarkers: boolean)
+	constructor (languageId: string, totalLines: number)
 	{
 		this.languageId = languageId;
-		this.showLineNumber = showLineNumber;
-		if (showLineNumber)
+		const config = vscode.workspace.getConfiguration(EXTENSION_ID);
+		this.showLineNumber = config.get<boolean>('showLineNumber', true);
+		this.stripMarkdownHeadingMarkers = config.get<boolean>('markdown.stripHeaderMarkers', true);
+		this.indentString = config.get<string>('indentString', '   ');
+		this.showSymbolKindName = config.get<boolean>('debug.showSymbolKindName', false);
+		if (this.showLineNumber)
 		{
 			// 必要な桁数を算出
 			this.lineNumberDigits = Math.floor(Math.log10(totalLines)) + 1;
@@ -253,8 +396,6 @@ class MyConvertOption
 		{
 			this.lineNumberDigits = 0;
 		}
-
-		this.stripMarkdownHeadingMarkers = stripMarkdownHeadingMarkers;
 	}
 }
 
@@ -542,10 +683,16 @@ export function activate(context: vscode.ExtensionContext)
 
 		// シンボルフィルタを初期化して設定を読み込み
 		const symbolFilter = new SymbolFilter();
-		symbolFilter.loadConfiguration();
+		symbolFilter.loadConfiguration(vscode.workspace.getConfiguration(EXTENSION_ID));
 
 		// ドキュメントシンボルを独自の MyOutlineObject リストに変換
 		let outlineObjectList = await makeOutlineObjectList(symbols, editor.document, symbolFilter);
+
+		// Cの特別な処理(typedefと直後の無名構造体を結合)
+		if (editor.document.languageId === 'c' && vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('c.combineUnnamedStructAndTypedef', true))
+		{
+			combineUnnamedStructAndTypedef(outlineObjectList);
+		}
 
 		// フィルタした結果、表示するドキュメントシンボル情報が無ければ警告を表示して終了
 		if (outlineObjectList.length === 0)
@@ -555,11 +702,7 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		// それを QuickPickItem のリストに変換
-		const showLineNumber = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline').get<boolean>('showLineNumber', true);
-		const stripMarkdownHeadingMarkers = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline').get<boolean>('markdown.stripHeaderMarkers', true);
-		const option = new MyConvertOption(editor.document.languageId, showLineNumber, editor.document.lineCount, stripMarkdownHeadingMarkers);
-		option.indentString = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline').get<string>('indentString', '   ');
-		option.showSymbolKindName = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline').get<boolean>('debug.showSymbolKindName', false);
+		const option = new MyConvertOption(editor.document.languageId, editor.document.lineCount);
 		const quickPickItems: vscode.QuickPickItem[] = [];
 		for (const outlineObject of outlineObjectList)
 		{
@@ -568,8 +711,7 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		// デバッグ用メニューの追加
-		const debugCopySymbolsMenu = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline').get<boolean>('debug.showCopySymbolsMenu', false);
-		if (debugCopySymbolsMenu)
+		if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('debug.showCopySymbolsMenu', false))
 		{
 			// セパレーター
 			quickPickItems.unshift({ label: '', kind: vscode.QuickPickItemKind.Separator });

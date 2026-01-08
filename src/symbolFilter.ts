@@ -58,9 +58,8 @@ export class SymbolFilter
 	/**
 	 * 設定を読み込む
 	 */
-	loadConfiguration()
+	loadConfiguration(config: vscode.WorkspaceConfiguration)
 	{
-		const config = vscode.workspace.getConfiguration('Romly-CommandPalette-de-Outline');
 		this.configs = config.get<SymbolFilterConfig[]>('symbolFilters', []);
 	}
 

@@ -22,6 +22,7 @@
 * `Romly-CommandPalette-de-Outline.showLineNumber`: 行番号の表示／非表示。
 * `Romly-CommandPalette-de-Outline.indentString`: インデントの代わりに使用する文字列。タブは使えないので、半角スペースを見やすいインデント幅になるよう繰り返してください。
 * `Romly-CommandPalette-de-Outline.markdown.stripHeaderMarkers`: マークダウンのアウトラインを表示すると見出しの#記号がごちゃごちゃして見づらいので、`true`にすることでそれらを非表示にできます。
+* `Romly-CommandPalette-de-Outline.c.combineUnnamedStructAndTypedef`: 有効にすると、C言語のアウトラインで無名構造体とそのtypedefのシンボルを一つにまとめます。ちょっと見やすくなります。
 * `Romly-CommandPalette-de-Outline.symbolFilters`: TypeScriptのアウトラインなどは関数の引数もシンボルとして表示されてしまい見づらいので、フィルタを指定して非表示にすることができます。下記のように指定します。 `filters` にはシンボルの種類をグロブパターンで指定します。シンボルの種類がわからない時は `Romly-CommandPalette-de-Outline.debug.showSymbolKindName` を `true` にしてアイコンの代わりにシンボルの種類の名前を表示し、確認してください。
 
 	```
@@ -96,6 +97,7 @@ An VSCode extension that displays document outlines in the command palette. Allo
 * `Romly-CommandPalette-de-Outline.showLineNumber`: Show/hide line numbers.
 * `Romly-CommandPalette-de-Outline.indentString`: String to use instead of indentation. Since tabs cannot be used, use multiple spaces to achieve a readable indent width.
 * `Romly-CommandPalette-de-Outline.markdown.stripHeaderMarkers`: When displaying Markdown outlines, the # symbols for headers can be visually distracting and hard to read, so setting this to `true` will hide them.
+* `Romly-CommandPalette-de-Outline.c.combineUnnamedStructAndTypedef`: When enabled, combines unnamed struct and its typedef symbols into a single symbol in the C language outline. Improves readability a bit.
 * `Romly-CommandPalette-de-Outline.symbolFilters`: TypeScript outlines and similar files display function arguments as symbols, making them hard to read, so you can specify filters to hide them. Specify as shown below. In `filters`, specify symbol kinds using glob patterns. If you don't know the symbol kind, set `Romly-CommandPalette-de-Outline.debug.showSymbolKindName` to `true` to display symbol kind names instead of icons, so you can confirm them.
 
 	```

@@ -3,6 +3,7 @@
 	"description.showLineNumber": "行番号を表示する。",
 	"description.indentString": "インデントに使われる文字列。",
 	"description.markdown.stripHeaderMarkers": "マークダウンの見出しの # を除去する。",
+	"description.markdown.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体をまとめる。",
 	"description.debug.showCopySymbolsMenu": "デバッグ用にシンボル情報をクリップボードにコピーするメニューを表示する。",
 	"description.debug.showSymbolKindName": "アイコンの代わりにシンボルの種類の名前を表示する。",
 	"description.symbolFilters": "非表示にするシンボルのフィルタを指定。",

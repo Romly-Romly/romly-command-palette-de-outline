@@ -3,6 +3,7 @@
 	"description.showLineNumber": "Show line numbers.",
 	"description.indentString": "String used for indentation.",
 	"description.markdown.stripHeaderMarkers": "Strip hash markers from markdown headings.",
+	"description.markdown.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct in C.",
 	"description.debug.showCopySymbolsMenu": "Show menu to copy document symbols to clipboard for debugging.",
 	"description.debug.showSymbolKindName": "Show symbol kind name instead of icon.",
 	"description.symbolFilters": "Specify filters for symbols to hide.",

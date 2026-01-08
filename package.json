@@ -3,7 +3,7 @@
 	"displayName": "Romly Command Palette de Outline",
 	"publisher": "Romly",
 	"description": "Show document outline in the command palette.",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"license": "See LICENSE.txt",
 	"engines": {
 		"vscode": "^1.107.0"
@@ -51,6 +51,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "%description.markdown.stripHeaderMarkers%"
+				},
+				"Romly-CommandPalette-de-Outline.c.combineUnnamedStructAndTypedef": {
+					"type": "boolean",
+					"default": true,
+					"description": "%description.markdown.combineUnnamedStructAndTypedef%"
 				},
 				"Romly-CommandPalette-de-Outline.symbolFilters": {
 					"type": "array",
