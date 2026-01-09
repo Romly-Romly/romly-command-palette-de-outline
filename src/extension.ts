@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as Utils from './utils';
-import { MyOutlineObjectList } from './myOutlineObject';
+import { MyOutlineObjectList, MyJumpToSymbolQuickPickItem } from './myOutlineObject';
 import { MyQuickPickItemBase, MyQuickPickItemButton } from './myQuickPickItemBase';
 import { SymbolFilter, SymbolFilterConfig } from './symbolFilter';
 import { SymbolCaptionFormatter, SymbolCaptionFormatItem } from './symbolCaptionFormatter';
@@ -234,6 +234,109 @@ function getApplicableFormatters(formatters: SymbolCaptionFormatter[], languageI
 
 
 
+/**
+ * クイックピックアイテムのリストにシンボル以外のメニュー項目などを必要に応じて追加する。
+ * @param quickPickItems
+ */
+function addExtraItems(quickPickItems: vscode.QuickPickItem[])
+{
+	if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('debug.showCopySymbolsMenu', false))
+	{
+		// セパレーター
+		quickPickItems.unshift({ label: '', kind: vscode.QuickPickItemKind.Separator });
+
+		const quickPickItem = new MyCopyDocumentSymbolsToClipboardQuickPickItem();
+		quickPickItems.unshift(quickPickItem);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * 各シンボルのホバーテキストを非同期で取得して一通り取得し終わったらクイックピックのアイテムを更新する。
+ * @param quickPick
+ * @param appendToDescription true なら description に追加、false なら detail に追加
+ */
+function fetchHoverTexts(quickPick: vscode.QuickPick<vscode.QuickPickItem>, appendToDescription: boolean, numIndentSpaces: number = 0)
+{
+	const promise = (async function ()
+	{
+		for (let i = 0; i < quickPick.items.length; i++)
+		{
+			const item = quickPick.items[i];
+			if (item instanceof MyJumpToSymbolQuickPickItem)
+			{
+				const kind = vscode.SymbolKind[item.getDocumentSymbol().kind];
+				{
+					await item.updateHoverText(appendToDescription, numIndentSpaces);
+				}
+			}
+		}
+	})();
+	promise.then(() => quickPick.items = quickPick.items);
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * アウトラインを表示するクイックピックを生成して返す
+ * @param editor
+ * @param items
+ * @returns
+ */
+function createQuickPick(editor: vscode.TextEditor, items: vscode.QuickPickItem[])
+{
+	const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
+	quickPick.items = items;
+	quickPick.placeholder = `[${editor.document.languageId}] ${path.basename(editor.document.fileName)}`;
+	quickPick.keepScrollPosition = true;
+
+	// アイテムが選択された時の処理
+	quickPick.onDidAccept(async () =>
+	{
+		const selected = quickPick.selectedItems[0];
+		if (selected && selected instanceof MyQuickPickItemBase)
+		{
+			await selected.execute(undefined);
+		}
+		quickPick.hide();
+	});
+
+	// アイテムのボタンが押された時の処理
+	quickPick.onDidTriggerItemButton(async (e) =>
+	{
+		if (e.button instanceof MyQuickPickItemButton)
+		{
+			await e.button.execute(undefined);
+		}
+	});
+
+	return quickPick;
+}
+
+
+
+
+
+
+
+
+
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext)
@@ -264,10 +367,14 @@ export function activate(context: vscode.ExtensionContext)
 			return;
 		}
 
+
+
+		const config = vscode.workspace.getConfiguration(EXTENSION_ID);
+
 		// フィルタ設定を読み込み。
 		// 設定が見つからない(キーが存在しない)場合はディフォルト設定を設定に書き込んで使うか尋ねる。
 		// キーが存在して空配列だった場合は意図的に設定されていないとしてフィルタ設定無しとする。
-		const filters = vscode.workspace.getConfiguration(EXTENSION_ID).get<SymbolFilterConfig[]>(CONFIG_KEY_SYMBOL_FILTERS, []);
+		const filters = config.get<SymbolFilterConfig[]>(CONFIG_KEY_SYMBOL_FILTERS, []);
 		if (filters.length === 0)
 		{
 			const msg = vscode.l10n.t("No filter settings found. Shall I put sample filters to the setting file?");
@@ -276,7 +383,7 @@ export function activate(context: vscode.ExtensionContext)
 				if (value === vscode.l10n.t("Yes, please"))
 				{
 					// 設定にサンプルを書き込む
-					vscode.workspace.getConfiguration(EXTENSION_ID).update(CONFIG_KEY_SYMBOL_FILTERS, defaultFilters, true);
+					config.update(CONFIG_KEY_SYMBOL_FILTERS, defaultFilters, true);
 
 					// 書き込んだ旨を表示
 					const msg = vscode.l10n.t("Sample filters have been written to your settings. Please execute the command again.");
@@ -287,25 +394,26 @@ export function activate(context: vscode.ExtensionContext)
 
 		// シンボルフィルタを初期化して設定を読み込み
 		let symbolFilter = undefined;
-		if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('enableSymbolFilters', true))
+		if (config.get<boolean>('enableSymbolFilters', true))
 		{
 			symbolFilter = new SymbolFilter();
 			symbolFilter.setConfiguration(filters);
 		}
 
 		// ドキュメントシンボルを独自の MyOutlineObject リストに変換
-		const outlineObjectList = await MyOutlineObjectList.createFromSymbols(symbols, editor.document.uri.toString(), symbolFilter);
+		const maxIndent = config.get<number>('maxOutlineIndent', 0);
+		const outlineObjectList = await MyOutlineObjectList.createFromSymbols(symbols, editor.document.uri.toString(), symbolFilter, maxIndent);
 
 		// キャプションのフォーマット処理
-		if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('enableSymbolCaptionFormat', true))
+		if (config.get<boolean>('enableSymbolCaptionFormat', true))
 		{
-			const symbolCaptionFormatters = vscode.workspace.getConfiguration(EXTENSION_ID).get<SymbolCaptionFormatter[]>(CONFIG_KEY_SYMBOL_CAPTION_FORMATTERS, []);
+			const symbolCaptionFormatters = config.get<SymbolCaptionFormatter[]>(CONFIG_KEY_SYMBOL_CAPTION_FORMATTERS, []);
 			const formatItems = getApplicableFormatters(symbolCaptionFormatters, editor.document.languageId);
 			outlineObjectList.formatCaptions(formatItems);
 		}
 
 		// Cの特別な処理(typedefと直後の無名構造体を結合)
-		if (editor.document.languageId === 'c' && vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('c.combineUnnamedStructAndTypedef', true))
+		if (editor.document.languageId === 'c' && config.get<boolean>('c.combineUnnamedStructAndTypedef', true))
 		{
 			outlineObjectList.combineUnnamedStructAndTypedef();
 		}
@@ -318,46 +426,32 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		// それを QuickPickItem のリストに変換
-		const config = vscode.workspace.getConfiguration(EXTENSION_ID);
-		const quickPickItems: vscode.QuickPickItem[] = outlineObjectList.convertToQuickPickItems(config, editor.document);
+		const quickPickItems: vscode.QuickPickItem[]  = await outlineObjectList.convertToQuickPickItems(config, editor.document);
 
 		// デバッグ用メニューの追加
-		if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('debug.showCopySymbolsMenu', false))
-		{
-			// セパレーター
-			quickPickItems.unshift({ label: '', kind: vscode.QuickPickItemKind.Separator });
+		addExtraItems(quickPickItems);
 
-			const quickPickItem = new MyCopyDocumentSymbolsToClipboardQuickPickItem();
-			quickPickItems.unshift(quickPickItem);
-		}
-
-		// QuickPick を表示
-		const quickPick = vscode.window.createQuickPick<vscode.QuickPickItem>();
-		quickPick.items = quickPickItems;
-		quickPick.placeholder = `[${editor.document.languageId}] ${path.basename(editor.document.fileName)}`;
-
-		// アイテムが選択された時の処理
-		quickPick.onDidAccept(async () =>
-		{
-			const selected = quickPick.selectedItems[0];
-			if (selected && selected instanceof MyQuickPickItemBase)
-			{
-				await selected.execute(context);
-			}
-			quickPick.hide();
-		});
-
-		// アイテムのボタンが押された時の処理
-		quickPick.onDidTriggerItemButton(async (e) =>
-		{
-			if (e.button instanceof MyQuickPickItemButton)
-			{
-				await e.button.execute(context);
-			}
-		});
-
-		// QuickPick を表示
+		// クイックピックの表示
+		const quickPick = createQuickPick(editor, quickPickItems);
 		quickPick.show();
+
+		// 非同期でホバーテキストを取得
+		const fetchSymbolHoverText = config.get<string>('fetchSymbolHoverText', "detail");
+		if (fetchSymbolHoverText.trim().length > 0 && fetchSymbolHoverText !== "none")
+		{
+			// 言語IDブラックリストに含まれている場合は取得しない
+			let langIdlackList = config.get<string | string[]>('fetchHoverTextLanguageIdBlackList', []);
+			langIdlackList = Array.isArray(langIdlackList) ? langIdlackList : [langIdlackList];
+			if (!(langIdlackList.includes(editor.document.languageId)))
+			{
+				let numSpaces = 0;
+				if (fetchSymbolHoverText === "detail")
+				{
+					numSpaces = config.get<number>('hoverTextIndentSpaces', 16);
+				}
+				fetchHoverTexts(quickPick, fetchSymbolHoverText === "description", numSpaces);
+			}
+		}
 	});
 
 	context.subscriptions.push(disposable);

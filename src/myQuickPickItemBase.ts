@@ -11,11 +11,11 @@ import * as vscode from 'vscode';
 
 export class MyQuickPickItemButton implements vscode.QuickInputButton
 {
-	private action: (context: vscode.ExtensionContext) => void | Promise<void>;
+	private action: (context: vscode.ExtensionContext | undefined) => void | Promise<void>;
 
 	constructor (
 		readonly iconPath: vscode.ThemeIcon | vscode.Uri | { light: vscode.Uri; dark: vscode.Uri },
-		action: (context: vscode.ExtensionContext) => void | Promise<void>,
+		action: (context: vscode.ExtensionContext | undefined) => void | Promise<void>,
 		tooltip?: string,
 	)
 	{
@@ -23,7 +23,7 @@ export class MyQuickPickItemButton implements vscode.QuickInputButton
 		this.action = action;
 	}
 
-	async execute(context: vscode.ExtensionContext)
+	async execute(context: vscode.ExtensionContext | undefined)
 	{
 		await this.action(context);
 	}
@@ -47,5 +47,5 @@ export abstract class MyQuickPickItemBase implements vscode.QuickPickItem
 	alwaysShow?: boolean;
 	buttons?: MyQuickPickItemButton[];
 
-	abstract execute(context: vscode.ExtensionContext): void | Promise<void>;
+	abstract execute(context: vscode.ExtensionContext | undefined): void | Promise<void>;
 }

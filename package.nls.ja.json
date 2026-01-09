@@ -3,18 +3,30 @@
 	"description.showLineNumber": "行番号を表示する。",
 	"description.indentString": "インデントに使われる文字列。",
 	"description.markdown.stripHeaderMarkers": "マークダウンの見出しの # を除去する。",
-	"description.markdown.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体をまとめる。",
+	"description.c.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体をまとめる。",
 	"description.debug.showCopySymbolsMenu": "デバッグ用にシンボル情報をクリップボードにコピーするメニューを表示する。",
 	"description.debug.showSymbolKindName": "アイコンの代わりにシンボルの種類の名前を表示する。",
 	"description.enableSymbolFilters": "シンボルのフィルタリングを有効にする。",
+
 	"description.symbolFilters": "非表示にするシンボルのフィルタを指定。 `enableSymbolFilters` が有効である必要があります。",
 	"description.symbolFilters.documentPattern": "このフィルタリストを適用するファイル名のグロブパターン。例: **/*.ts",
 	"description.symbolFilters.filters": "非表示にするシンボルにマッチするグロブパターン形式のフィルタのリスト。 例: [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"]",
+
 	"description.enableSymbolCaptionFormat": "アウトライン表示時の整形を有効にする。",
+
 	"description.symbolCaptionFormatter": "アウトライン表示時のシンボル名を見やすいよう整形する時の置換ルール設定。`enableSymbolCaptionFormat` が有効である必要があります。",
 	"description.symbolCaptionFormatter.languageIds": "この置換ルールリストを適用する言語IDのリスト。",
 	"description.symbolCaptionFormatter.formatters": "置換ルールのリスト。シンボルの種類の名前が一致した最初のルールが適用されます。",
 	"description.symbolCaptionFormatter.formatter.symbolKinds": "この置換を適用するシンボルの種類の名前。例: Function, Variable, Method, Constructor, Interface, Class, Enum, など。最低1つは指定する必要があります。",
 	"description.symbolCaptionFormatter.formatter.regexp": "検索する正規表現パターン。",
-	"description.symbolCaptionFormatter.formatter.replacement": "置換後の文字列。正規表現のキャプチャグループも使用可能。"
+	"description.symbolCaptionFormatter.formatter.replacement": "置換後の文字列。正規表現のキャプチャグループも使用可能。",
+
+	"description.fetchSymbolHoverText": "ホバーテキストを表示する場所。",
+	"description.fetchSymbolHoverText.none": "ホバーテキストを取得しない。",
+	"description.fetchSymbolHoverText.description": "説明領域(項目の右)に表示する。",
+	"description.fetchSymbolHoverText.detail": "詳細領域(項目の下)に表示する。",
+	"description.fetchHoverTextLanguageIdBlackList": "ホバーテキストを取得しない言語IDのリスト。例: `[\"json\", \"jsonc\"]`",
+
+	"description.hoverTextIndentSpaces": "ホバーテキストを詳細領域に表示する時に、左に挿入する半角スペースの数。",
+	"description.maxOutlineIndent": "アウトラインに表示するシンボルの最大深さ。0にすると全階層を表示、1ならトップレベルのみ表示。"
 }

@@ -3,18 +3,30 @@
 	"description.showLineNumber": "Show line numbers.",
 	"description.indentString": "String used for indentation.",
 	"description.markdown.stripHeaderMarkers": "Strip hash markers from markdown headings.",
-	"description.markdown.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct in C.",
+	"description.c.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct in C.",
 	"description.debug.showCopySymbolsMenu": "Show menu to copy document symbols to clipboard for debugging.",
 	"description.debug.showSymbolKindName": "Show symbol kind name instead of icon.",
 	"description.enableSymbolFilters": "Enable symbol filters.",
+
 	"description.symbolFilters": "Specify filters for symbols to hide. `enableSymbolFilters` must be enabled.",
 	"description.symbolFilters.documentPattern": "Glob pattern for file names to apply this filter list. Ex: **/*.ts",
 	"description.symbolFilters.filters": "List of glob pattern filters matching symbols to hide. Ex: [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"]",
+
 	"description.enableSymbolCaptionFormat": "Enable symbol name formatting.",
+
 	"description.symbolCaptionFormatter": "Replacement rule settings for formatting symbol names in the outline view to improve readability. `enableSymbolCaptionFormat` must be enabled.",
 	"description.symbolCaptionFormatter.languageIds": "Language IDs to apply this replacement rule list.",
 	"description.symbolCaptionFormatter.formatters": "List of replacement rules. The first rule that matches the symbol kind will be applied.",
 	"description.symbolCaptionFormatter.formatter.symbolKinds": "The name of the symbol kind(s) to apply this replacement. Ex: Function, Variable, Method, Constructor, Interface, Class, Enum, etc. At least one symbol kind must be specified.",
 	"description.symbolCaptionFormatter.formatter.regexp": "Regular expression pattern to search for.",
-	"description.symbolCaptionFormatter.formatter.replacement": "Replacement string. Regular expression capture groups can be used."
+	"description.symbolCaptionFormatter.formatter.replacement": "Replacement string. Regular expression capture groups can be used.",
+
+	"description.fetchSymbolHoverText": "Specifies where to display the hover text.",
+	"description.fetchSymbolHoverText.none": "Do not fetch hover text.",
+	"description.fetchSymbolHoverText.description": "Display in the description area. (right of the item)",
+	"description.fetchSymbolHoverText.detail": "Display in the detail area. (below the item)",
+	"description.fetchHoverTextLanguageIdBlackList": "List of language IDs for which hover text will not be fetched. Ex: `[\"json\", \"jsonc\"]`",
+
+	"description.hoverTextIndentSpaces": "Number of spaces to insert on the left when displaying hover text in the detail area.",
+	"description.maxOutlineIndent": "Maximum depth of symbols to display in the outline. Set to 0 to show all levels, 1 to show top-level only."
 }

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
+import * as Utils from './utils';
 import { SymbolCaptionFormatItem } from './symbolCaptionFormatter';
-import { MyQuickPickItemBase } from './myQuickPickItemBase';
+import { MyQuickPickItemBase, MyQuickPickItemButton } from './myQuickPickItemBase';
 import { SymbolFilter } from './symbolFilter';
 
 
@@ -105,104 +106,35 @@ class MyConvertOption
 
 
 
-// シンボルにジャンプする独自クラス
-class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
+/**
+ * シンボルの種類をアイコン名に変換する
+ * @param kind
+ * @returns
+ */
+function getSymbolKindIconName(kind: vscode.SymbolKind): string
 {
-	label: string;
-
-	document: vscode.TextDocument;
-
-	// ドキュメントシンボルをそのまま保持
-	documentSymbol: vscode.DocumentSymbol;
-
-	constructor (document: vscode.TextDocument, outlineObject: MyOutlineObject, option: MyConvertOption)
+	switch (kind)
 	{
-		super();
+		case vscode.SymbolKind.Constant:	return 'symbol-constant';
+		case vscode.SymbolKind.Variable:	return 'symbol-variable';
+		case vscode.SymbolKind.Struct:		return 'symbol-struct';
+		case vscode.SymbolKind.Interface:	return 'symbol-interface';
+		case vscode.SymbolKind.Enum:		return 'symbol-enum';
+		case vscode.SymbolKind.EnumMember:	return 'symbol-enum-member';
+		case vscode.SymbolKind.Function:	return 'symbol-function';
+		case vscode.SymbolKind.Field:		return 'symbol-field';
+		case vscode.SymbolKind.Boolean:		return 'symbol-boolean';
+		case vscode.SymbolKind.String:		return 'symbol-string';
+		case vscode.SymbolKind.Array:		return 'symbol-array';
+		case vscode.SymbolKind.Module:		return 'symbol-module';
+		case vscode.SymbolKind.Property:	return 'symbol-property';
+		case vscode.SymbolKind.Method:		return 'symbol-method';
+		case vscode.SymbolKind.Class:		return 'symbol-class';
+		case vscode.SymbolKind.Number:		return 'symbol-number';
+		case vscode.SymbolKind.Constructor: return 'symbol-constructor';
 
-		// 行番号を追加
-		let lineNumberStr = '';
-		if (option.showLineNumber)
-		{
-			const lineNum = outlineObject.documentSymbol.selectionRange.start.line + 1;
-			if (option.lineNumberDigits > 0)
-			{
-				lineNumberStr = lineNum.toString().padStart(option.lineNumberDigits, '0');
-			}
-			else
-			{
-				lineNumberStr = lineNum.toString();
-			}
-			lineNumberStr = ':' + lineNumberStr + ' ';
-		}
-
-		// インデントを空白で擬似的に再現
-		const s = option.indentString.repeat(outlineObject.indent);
-
-		// アイコンを付与
-		let iconName = '';
-		if (option.showSymbolKindName)
-		{
-			iconName = `[${vscode.SymbolKind[outlineObject.documentSymbol.kind]}] `;
-		}
-		else
-		{
-			switch (outlineObject.documentSymbol.kind)
-			{
-				case vscode.SymbolKind.Constant:	iconName = 'symbol-constant';		break;
-				case vscode.SymbolKind.Variable:	iconName = 'symbol-variable';		break;
-				case vscode.SymbolKind.Struct:		iconName = 'symbol-struct';			break;
-				case vscode.SymbolKind.Interface:	iconName = 'symbol-interface';		break;
-				case vscode.SymbolKind.Enum:		iconName = 'symbol-enum';			break;
-				case vscode.SymbolKind.EnumMember:	iconName = 'symbol-enum-member';	break;
-				case vscode.SymbolKind.Function:	iconName = 'symbol-function';		break;
-				case vscode.SymbolKind.Field:		iconName = 'symbol-field';			break;
-				case vscode.SymbolKind.Boolean:		iconName = 'symbol-boolean';		break;
-				case vscode.SymbolKind.String:		iconName = 'symbol-string';			break;
-				case vscode.SymbolKind.Array:		iconName = 'symbol-array';			break;
-				case vscode.SymbolKind.Module:		iconName = 'symbol-module';			break;
-				case vscode.SymbolKind.Property:	iconName = 'symbol-property';		break;
-				case vscode.SymbolKind.Method:		iconName = 'symbol-method';			break;
-				case vscode.SymbolKind.Class:		iconName = 'symbol-class';			break;
-				case vscode.SymbolKind.Number:		iconName = 'symbol-number';			break;
-				case vscode.SymbolKind.Constructor: iconName = 'symbol-constructor';	break;
-			}
-			if (iconName.length > 0) { iconName = `\$(${iconName}) `; }
-		}
-
-		const isMarkdown = option.languageId === 'markdown';
-		let caption = outlineObject.documentSymbol.name;
-		if (isMarkdown && option.stripMarkdownHeadingMarkers)
-		{
-			caption = caption.replace(/^#+\s*/, '');
-		}
-
-		this.label = lineNumberStr + s + iconName + caption;
-		this.description = outlineObject.documentSymbol.detail;
-
-		this.document = document;
-		this.documentSymbol = outlineObject.documentSymbol;
-	}
-
-	async execute(context: vscode.ExtensionContext)
-	{
-		const editor = vscode.window.activeTextEditor;
-		if (editor)
-		{
-			// ドキュメントシンボルの位置にジャンプ
-			const targetPosition = new vscode.Position(
-				this.documentSymbol.selectionRange.start.line,
-				this.documentSymbol.selectionRange.start.character
-			);
-
-			// カーソル位置を設定
-			editor.selection = new vscode.Selection(targetPosition, targetPosition);
-
-			// 画面をスクロール
-			editor.revealRange(
-				new vscode.Range(targetPosition, targetPosition),
-				vscode.TextEditorRevealType.InCenter
-			);
-		}
+		default:
+			return '';
 	}
 }
 
@@ -216,21 +148,197 @@ class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 
 
 /**
+ * シンボルを表示し、ジャンプする機能を持つクイックピックアイテム。
+ */
+export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
+{
+	label: string;
+
+	readonly document: vscode.TextDocument;
+
+	readonly outlineObject: MyOutlineObject;
+
+	readonly indentString: string;
+
+	constructor (document: vscode.TextDocument, outlineObject: MyOutlineObject, option: MyConvertOption)
+	{
+		super();
+		this.document = document;
+		this.outlineObject = outlineObject;
+		this.indentString = option.indentString.repeat(outlineObject.indent);	// インデントを空白で擬似的に再現
+
+		// 行番号を追加。range が全体の範囲、 selectionRange がアウトラインへの表示部分なので、行番号は range から算出
+		let lineNumberStr = '';
+		if (option.showLineNumber)
+		{
+			const lineNum = outlineObject.documentSymbol.range.start.line + 1;
+			if (option.lineNumberDigits > 0)
+			{
+				lineNumberStr = lineNum.toString().padStart(option.lineNumberDigits, '0');
+			}
+			else
+			{
+				lineNumberStr = lineNum.toString();
+			}
+			lineNumberStr = ':' + lineNumberStr + ' ';
+		}
+
+		// アイコンを付与
+		let iconName = '';
+		if (option.showSymbolKindName)
+		{
+			iconName = `[${vscode.SymbolKind[outlineObject.documentSymbol.kind]}] `;
+		}
+		else
+		{
+			iconName = getSymbolKindIconName(outlineObject.documentSymbol.kind);
+			if (iconName.length > 0) { iconName = `\$(${iconName}) `; }
+		}
+
+		const isMarkdown = option.languageId === 'markdown';
+		let caption = outlineObject.documentSymbol.name;
+		if (isMarkdown && option.stripMarkdownHeadingMarkers)
+		{
+			caption = caption.replace(/^#+\s*/, '');
+		}
+
+		this.label = lineNumberStr + this.indentString + iconName + caption;
+		this.description = outlineObject.documentSymbol.detail;
+	}
+
+	public getDocumentSymbol(): vscode.DocumentSymbol
+	{
+		return this.outlineObject.documentSymbol;
+	}
+
+	async execute(context: vscode.ExtensionContext)
+	{
+		const editor = vscode.window.activeTextEditor;
+		if (editor)
+		{
+			// ドキュメントシンボルの位置にジャンプ(カーソル位置を設定)
+			const targetPosition = this.getDocumentSymbol().selectionRange.start;
+			editor.selection = new vscode.Selection(targetPosition, targetPosition);
+
+			// 画面をスクロール
+			editor.revealRange(
+				new vscode.Range(targetPosition, targetPosition),
+				vscode.TextEditorRevealType.InCenter
+			);
+		}
+	}
+
+	/**
+	 * 取得したホバーテキストから、関数の説明を抽出する。
+	 * コードブロックを取り除いて、最初の行が説明になっていると仮定。
+	 * @param hoverText
+	 * @returns
+	 */
+	private static getFunctionDescriptionFromHoverText(hoverText: string): string
+	{
+		// コードブロックを除去
+		hoverText = hoverText.replace(/```[a-z]*\n[\s\S]*?```/g, '');
+
+		// 空行を削除
+		hoverText = hoverText.replace(/^\s*$\n/gm, '');
+
+		// 最初の行を採用
+		hoverText = hoverText.split('\n')[0].trim();
+
+		// HTMLエンティティの除去
+		hoverText = Utils.decodeHtmlEntities(hoverText);
+
+		return hoverText;
+	}
+
+	/**
+	 * ホバープロバイダを使って指定されたカーソル位置のホバーテキストを取得する。
+	 * @param documentUri
+	 * @param pos
+	 * @returns
+	 */
+	private static async getHoverText(documentUri: vscode.Uri, pos: vscode.Position): Promise<string>
+	{
+		const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', documentUri, pos);
+
+		if (hovers && hovers.length > 0)
+		{
+			const allTexts = [];
+			for (let i = 0; i < Math.min(1, hovers[0].contents.length); i++)
+			{
+				const content = hovers[0].contents[i];
+
+				// MarkdownStringの場合
+				if (content instanceof vscode.MarkdownString)
+				{
+					allTexts.push(content.value);
+				}
+				// stringの場合
+				else if (typeof content === 'string')
+				{
+					allTexts.push(content);
+				}
+			}
+			return allTexts.join('\n');
+		}
+		else
+		{
+			return '';
+		}
+	}
+
+	/**
+	 * シンボルの概要をホバーテキストから取得し、 description または detail に追加する。
+ 	 * @param appendToDescription true なら description に追加、false なら detail に追加
+	 * @param numIndentSpaces description に追加する場合に、インデントとして表示する半角スペースの数。
+	 */
+	public async updateHoverText(appendToDescription: boolean, numIndentSpaces: number = 0)
+	{
+		let hoverText = await MyJumpToSymbolQuickPickItem.getHoverText(this.document.uri, this.getDocumentSymbol().selectionRange.start);
+		hoverText = MyJumpToSymbolQuickPickItem.getFunctionDescriptionFromHoverText(hoverText);
+		if (hoverText.length > 0)
+		{
+			if (appendToDescription)
+			{
+				this.description += ' ' + hoverText;
+			}
+			else
+			{
+				this.detail = ' '.repeat(numIndentSpaces) + this.indentString + hoverText;
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+interface DecodeSymbolsOptions
+{
+	symbolFilter?: SymbolFilter;			// シンボルフィルタ(省略可能)
+	documentUri?: string;					// ドキュメントのURI (フィルタリング時に必要)
+	parentChain: vscode.SymbolKind[];		// 親シンボルのSymbolKind配列(フィルタリング時に必要)
+	maxIndentLevel: number;
+}
+
+/**
  * ドキュメントシンボルを再帰的に走査し、階層構造を値として保持した独自のアウトラインオブジェクトのリストを作る。
  * @param symbols 走査対象のドキュメントシンボル配列。
  * @param outlineObjectList 結果を格納する配列。
  * @param indent 現在のインデントレベル。最初の呼び出しでは省略(0)。
- * @param symbolFilter シンボルフィルタ(省略可能)
- * @param documentUri ドキュメントのURI (フィルタリング時に必要)
- * @param parentChain 親シンボルのSymbolKind配列(フィルタリング時に必要)
+ * @param options
  */
 function decodeSymbols(
 	symbols: vscode.DocumentSymbol[],
 	outlineObjectList: MyOutlineObject[],
 	indent = 0,
-	symbolFilter?: SymbolFilter,
-	documentUri?: string,
-	parentChain: vscode.SymbolKind[] = []
+	options: DecodeSymbolsOptions
 )
 {
 	// 標準では出現順になっていなかったので、先に並び替える。
@@ -253,9 +361,9 @@ function decodeSymbols(
 	for (const symbol of sortedSymbols)
 	{
 		// フィルタリング判定
-		if (symbolFilter && documentUri)
+		if (options.symbolFilter && options.documentUri)
 		{
-			if (!symbolFilter.shouldShowSymbol(symbol, parentChain, documentUri))
+			if (!options.symbolFilter.shouldShowSymbol(symbol, options.parentChain, options.documentUri))
 			{
 				// このシンボルは表示しない
 				continue;
@@ -266,8 +374,13 @@ function decodeSymbols(
 
 		if (symbol.children.length > 0)
 		{
-			// 子シンボルを再帰処理 (親チェインに現在のsymbolを追加)
-			decodeSymbols(symbol.children, outlineObjectList, indent + 1, symbolFilter, documentUri, [...parentChain, symbol.kind]);
+			// 最大インデントレベルのチェック
+			if (options.maxIndentLevel === 0 || indent < options.maxIndentLevel - 1)
+			{
+				// 子シンボルを再帰処理 (親チェインに現在のsymbolを追加)
+				const newOption = { ...options, parentChain: [...options.parentChain, symbol.kind] };
+				decodeSymbols(symbol.children, outlineObjectList, indent + 1, newOption);
+			}
 		}
 	}
 }
@@ -395,6 +508,8 @@ export class MyOutlineObjectList
 					// それが無名構造体なら、名前を typedef のものに置き換え、 typedef 側は削除リストへ
 					nextSibling.documentSymbol.name = obj.documentSymbol.name;
 					nextSibling.documentSymbol.detail = obj.documentSymbol.detail;
+					nextSibling.documentSymbol.range = obj.documentSymbol.range;
+					nextSibling.documentSymbol.selectionRange = obj.documentSymbol.selectionRange;
 					toRemove.push(i);
 				}
 			}
@@ -404,14 +519,24 @@ export class MyOutlineObjectList
 		this.removeAtIndices(toRemove);
 	}
 
-	public convertToQuickPickItems(config: vscode.WorkspaceConfiguration, document: vscode.TextDocument): vscode.QuickPickItem[]
+	/**
+	 * このリストを QuickPickItem の配列に変換する。
+	 * @param config
+	 * @param document
+	 * @returns
+	 */
+	public async convertToQuickPickItems(config: vscode.WorkspaceConfiguration, document: vscode.TextDocument): Promise<vscode.QuickPickItem[]>
 	{
 		const option = new MyConvertOption(config, document.languageId, document.lineCount);
 
 		const result: vscode.QuickPickItem[] = [];
 		for (const outlineObject of this.items)
 		{
-			result.push(new MyJumpToSymbolQuickPickItem(document, outlineObject, option));
+			const item = new MyJumpToSymbolQuickPickItem(document, outlineObject, option);
+			// item.buttons = [new MyQuickPickItemButton(new vscode.ThemeIcon('trash'), async (context) =>
+			// {
+			// })];
+			result.push(item);
 		}
 		return result;
 	}
@@ -422,10 +547,11 @@ export class MyOutlineObjectList
 	 * @param symbolFilter シンボルフィルタ(省略可)
 	 * @returns アウトラインオブジェクトの配列を含む Promise 。シンボルが取得できなかった場合は空配列を返す。
 	 */
-	static async createFromSymbols(symbols: vscode.DocumentSymbol[], documentUri: string, symbolFilter?: SymbolFilter): Promise<MyOutlineObjectList>
+	static async createFromSymbols(symbols: vscode.DocumentSymbol[], documentUri: string, symbolFilter?: SymbolFilter, maxIndentLevel: number = 0): Promise<MyOutlineObjectList>
 	{
 		const outlineObjects: MyOutlineObject[] = [];
-		decodeSymbols(symbols, outlineObjects, 0, symbolFilter, documentUri);
+		const options = { symbolFilter, documentUri, parentChain: [], maxIndentLevel };
+		decodeSymbols(symbols, outlineObjects, 0, options);
 		return new MyOutlineObjectList(outlineObjects);
 	}
 }
