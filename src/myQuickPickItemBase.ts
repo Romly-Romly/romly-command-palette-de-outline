@@ -16,7 +16,7 @@ export class MyQuickPickItemButton implements vscode.QuickInputButton
 	constructor (
 		readonly iconPath: vscode.ThemeIcon | vscode.Uri | { light: vscode.Uri; dark: vscode.Uri },
 		action: (context: vscode.ExtensionContext | undefined) => void | Promise<void>,
-		tooltip?: string,
+		readonly tooltip?: string
 	)
 	{
 		this.iconPath = iconPath;

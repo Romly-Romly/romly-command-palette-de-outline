@@ -4,6 +4,10 @@
 
 [English version below](#english英語)
 
+### [1.3.1] - 2026/01/10
+
+- Pythonの時にホバーテキストから関数コメントがうまく取得できていなかった症状を修正
+
 ### [1.3.0] - 2026/01/10
 
 - シンボルのホバーテキスト(関数のコメントなど)を表示する機能を追加。
@@ -48,6 +52,10 @@
 ## English(英語)
 
 [日本語版(Japanese version above)はこちら](#日本語japanese)
+
+### [1.3.1] - 2026/01/10
+
+- Fixed an issue where function comments were not being properly retrieved from hover text in Python.
 
 ### [1.3.0] - 2026/01/10
 

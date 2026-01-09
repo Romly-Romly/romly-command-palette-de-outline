@@ -59,7 +59,7 @@ export class MyOutlineObject
 
 
 // クイックピック用のアイテムに変換する時のオプション
-class MyConvertOption
+export class MyConvertOption
 {
 	// ドキュメントの言語IDがそのまま渡される。
 	readonly languageId: string;
@@ -239,6 +239,12 @@ export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 		// コードブロックを除去
 		hoverText = hoverText.replace(/```[a-z]*\n[\s\S]*?```/g, '');
 
+		// HTMLコメントを除去
+		hoverText = hoverText.replace(/<!--[\s\S]*?-->/g, '');
+
+		// マークダウンの罫線を削除
+		hoverText = hoverText.replace(/^-{3,}\s*$\n/gm, '');
+
 		// 空行を削除
 		hoverText = hoverText.replace(/^\s*$\n/gm, '');
 
@@ -287,6 +293,11 @@ export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 		}
 	}
 
+	public async fetchHoverText(): Promise<string>
+	{
+		return await MyJumpToSymbolQuickPickItem.getHoverText(this.document.uri, this.getDocumentSymbol().selectionRange.start);
+	}
+
 	/**
 	 * シンボルの概要をホバーテキストから取得し、 description または detail に追加する。
  	 * @param appendToDescription true なら description に追加、false なら detail に追加
@@ -294,17 +305,17 @@ export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 	 */
 	public async updateHoverText(appendToDescription: boolean, numIndentSpaces: number = 0)
 	{
-		let hoverText = await MyJumpToSymbolQuickPickItem.getHoverText(this.document.uri, this.getDocumentSymbol().selectionRange.start);
-		hoverText = MyJumpToSymbolQuickPickItem.getFunctionDescriptionFromHoverText(hoverText);
-		if (hoverText.length > 0)
+		const hoverText = await this.fetchHoverText();
+		const hint = MyJumpToSymbolQuickPickItem.getFunctionDescriptionFromHoverText(hoverText);
+		if (hint.length > 0)
 		{
 			if (appendToDescription)
 			{
-				this.description += ' ' + hoverText;
+				this.description += ' ' + hint;
 			}
 			else
 			{
-				this.detail = ' '.repeat(numIndentSpaces) + this.indentString + hoverText;
+				this.detail = ' '.repeat(numIndentSpaces) + this.indentString + hint;
 			}
 		}
 	}
@@ -521,21 +532,26 @@ export class MyOutlineObjectList
 
 	/**
 	 * このリストを QuickPickItem の配列に変換する。
-	 * @param config
+	 * @param option
 	 * @param document
 	 * @returns
 	 */
-	public async convertToQuickPickItems(config: vscode.WorkspaceConfiguration, document: vscode.TextDocument): Promise<vscode.QuickPickItem[]>
+	public async convertToQuickPickItems(option: MyConvertOption, document: vscode.TextDocument, debugMode: boolean): Promise<vscode.QuickPickItem[]>
 	{
-		const option = new MyConvertOption(config, document.languageId, document.lineCount);
-
 		const result: vscode.QuickPickItem[] = [];
 		for (const outlineObject of this.items)
 		{
 			const item = new MyJumpToSymbolQuickPickItem(document, outlineObject, option);
-			// item.buttons = [new MyQuickPickItemButton(new vscode.ThemeIcon('trash'), async (context) =>
-			// {
-			// })];
+			if (debugMode)
+			{
+				// ホバーテキストを取得してクリップボードにコピーするボタン
+				const hoverTextCopyButton = new MyQuickPickItemButton(new vscode.ThemeIcon('debug-hint'), async (context) =>
+				{
+					const hoverText = await item.fetchHoverText();
+					Utils.copyToClipboard(hoverText);
+				}, "Copy hover text to clipboard");
+				item.buttons = [hoverTextCopyButton];
+			}
 			result.push(item);
 		}
 		return result;

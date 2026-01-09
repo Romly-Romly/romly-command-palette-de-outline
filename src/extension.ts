@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as Utils from './utils';
-import { MyOutlineObjectList, MyJumpToSymbolQuickPickItem } from './myOutlineObject';
+import { MyOutlineObjectList, MyJumpToSymbolQuickPickItem, MyConvertOption } from './myOutlineObject';
 import { MyQuickPickItemBase, MyQuickPickItemButton } from './myQuickPickItemBase';
 import { SymbolFilter, SymbolFilterConfig } from './symbolFilter';
 import { SymbolCaptionFormatter, SymbolCaptionFormatItem } from './symbolCaptionFormatter';
@@ -240,14 +240,11 @@ function getApplicableFormatters(formatters: SymbolCaptionFormatter[], languageI
  */
 function addExtraItems(quickPickItems: vscode.QuickPickItem[])
 {
-	if (vscode.workspace.getConfiguration(EXTENSION_ID).get<boolean>('debug.showCopySymbolsMenu', false))
-	{
-		// セパレーター
-		quickPickItems.unshift({ label: '', kind: vscode.QuickPickItemKind.Separator });
+	// セパレーター
+	quickPickItems.unshift({ label: '', kind: vscode.QuickPickItemKind.Separator });
 
-		const quickPickItem = new MyCopyDocumentSymbolsToClipboardQuickPickItem();
-		quickPickItems.unshift(quickPickItem);
-	}
+	const quickPickItem = new MyCopyDocumentSymbolsToClipboardQuickPickItem();
+	quickPickItems.unshift(quickPickItem);
 }
 
 
@@ -369,7 +366,9 @@ export function activate(context: vscode.ExtensionContext)
 
 
 
+		const langId = editor.document.languageId;
 		const config = vscode.workspace.getConfiguration(EXTENSION_ID);
+		const debugMode = config.get<boolean>('debugMode', false);
 
 		// フィルタ設定を読み込み。
 		// 設定が見つからない(キーが存在しない)場合はディフォルト設定を設定に書き込んで使うか尋ねる。
@@ -408,12 +407,12 @@ export function activate(context: vscode.ExtensionContext)
 		if (config.get<boolean>('enableSymbolCaptionFormat', true))
 		{
 			const symbolCaptionFormatters = config.get<SymbolCaptionFormatter[]>(CONFIG_KEY_SYMBOL_CAPTION_FORMATTERS, []);
-			const formatItems = getApplicableFormatters(symbolCaptionFormatters, editor.document.languageId);
+			const formatItems = getApplicableFormatters(symbolCaptionFormatters, langId);
 			outlineObjectList.formatCaptions(formatItems);
 		}
 
 		// Cの特別な処理(typedefと直後の無名構造体を結合)
-		if (editor.document.languageId === 'c' && config.get<boolean>('c.combineUnnamedStructAndTypedef', true))
+		if (langId === 'c' && config.get<boolean>('c.combineUnnamedStructAndTypedef', true))
 		{
 			outlineObjectList.combineUnnamedStructAndTypedef();
 		}
@@ -426,10 +425,14 @@ export function activate(context: vscode.ExtensionContext)
 		}
 
 		// それを QuickPickItem のリストに変換
-		const quickPickItems: vscode.QuickPickItem[]  = await outlineObjectList.convertToQuickPickItems(config, editor.document);
+		const option = new MyConvertOption(config, langId, editor.document.lineCount);
+		const quickPickItems: vscode.QuickPickItem[]  = await outlineObjectList.convertToQuickPickItems(option, editor.document, debugMode);
 
 		// デバッグ用メニューの追加
-		addExtraItems(quickPickItems);
+		if (debugMode)
+		{
+			addExtraItems(quickPickItems);
+		}
 
 		// クイックピックの表示
 		const quickPick = createQuickPick(editor, quickPickItems);
@@ -442,7 +445,7 @@ export function activate(context: vscode.ExtensionContext)
 			// 言語IDブラックリストに含まれている場合は取得しない
 			let langIdlackList = config.get<string | string[]>('fetchHoverTextLanguageIdBlackList', []);
 			langIdlackList = Array.isArray(langIdlackList) ? langIdlackList : [langIdlackList];
-			if (!(langIdlackList.includes(editor.document.languageId)))
+			if (!(langIdlackList.includes(langId)))
 			{
 				let numSpaces = 0;
 				if (fetchSymbolHoverText === "detail")
