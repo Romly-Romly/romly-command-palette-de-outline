@@ -3,7 +3,7 @@
 	"description.showLineNumber": "行番号を表示する。",
 	"description.indentString": "インデントに使われる文字列。",
 	"description.markdown.stripHeaderMarkers": "マークダウンの見出しの # を除去する。",
-	"description.c.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体をまとめる。",
+	"description.c.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体/列挙型をまとめる。",
 	"description.debugMode": "デバッグ用の機能を有効にする。作者がこの拡張機能名を開発する時用なので、使用しないでください。",
 	"description.debug.showSymbolKindName": "アイコンの代わりにシンボルの種類の名前を表示する。",
 	"description.enableSymbolFilters": "シンボルのフィルタリングを有効にする。",

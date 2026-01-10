@@ -3,7 +3,7 @@
 	"displayName": "Romly Command Palette de Outline",
 	"publisher": "Romly",
 	"description": "Show document outline in the command palette.",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"license": "See LICENSE.txt",
 	"engines": {
 		"vscode": "^1.107.0"

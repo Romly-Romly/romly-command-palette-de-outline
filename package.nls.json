@@ -3,7 +3,7 @@
 	"description.showLineNumber": "Show line numbers.",
 	"description.indentString": "String used for indentation.",
 	"description.markdown.stripHeaderMarkers": "Strip hash markers from markdown headings.",
-	"description.c.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct in C.",
+	"description.c.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct/enum in C.",
 	"description.debugMode": "Enable debugging features. This is intended for use by the author during development of this extension, please do not use it.",
 	"description.debug.showSymbolKindName": "Show symbol kind name instead of icon.",
 	"description.enableSymbolFilters": "Enable symbol filters.",

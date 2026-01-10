@@ -24,7 +24,7 @@
 * `Romly-CommandPalette-de-Outline.indentString`: インデントの代わりに使用する文字列。タブは使えないので、半角スペースを見やすいインデント幅になるよう繰り返してください。
 * `Romly-CommandPalette-de-Outline.maxOutlineIndent`: アウトライン表示の最大深さ。0にすると全階層を表示、1ならトップレベルのみ表示。
 * `Romly-CommandPalette-de-Outline.markdown.stripHeaderMarkers`: マークダウンのアウトラインを表示すると見出しの#記号がごちゃごちゃして見づらいので、`true`にすることでそれらを非表示にできます。
-* `Romly-CommandPalette-de-Outline.c.combineUnnamedStructAndTypedef`: 有効にすると、C言語のアウトラインで無名構造体とそのtypedefのシンボルを一つにまとめます。ちょっと見やすくなります。
+* `Romly-CommandPalette-de-Outline.c.combineUnnamedStructAndTypedef`: 有効にすると、C言語のアウトラインで無名構造体/列挙型とそのtypedefのシンボルを一つにまとめます。ちょっと見やすくなります。
 * `Romly-CommandPalette-de-Outline.symbolFilters`: TypeScriptのアウトラインなどは関数の引数もシンボルとして表示されてしまい見づらいので、フィルタを指定して非表示にすることができます。下記のように指定します。 `filters` にはシンボルの種類をグロブパターンで指定します。シンボルの種類がわからない時は `Romly-CommandPalette-de-Outline.debug.showSymbolKindName` を `true` にしてアイコンの代わりにシンボルの種類の名前を表示し、確認してください。
 
 	```

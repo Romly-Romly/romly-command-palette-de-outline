@@ -40,12 +40,21 @@ export class MyOutlineObject
 	}
 
 	/**
-	 * このアウトラインオブジェクトが無名構造体なら true を返す。
+	 * これが無名構造体なら true を返す。
 	 * @returns
 	 */
 	isUnnamedStruct(): boolean
 	{
 		return this.documentSymbol.kind === vscode.SymbolKind.Struct && this.documentSymbol.name.indexOf('__unnamed_struct') >= 0;
+	}
+
+	/**
+	 * これが無名列挙型なら true を返す
+	 * @returns
+	 */
+	isUnnamedEnum(): boolean
+	{
+		return this.documentSymbol.kind === vscode.SymbolKind.Enum && this.documentSymbol.name.indexOf('__unnamed_enum') >= 0;
 	}
 }
 
@@ -514,9 +523,9 @@ export class MyOutlineObjectList
 			{
 				// 直後の同じ階層のものを見つける
 				const nextSibling = this.findNextSibling(i);
-				if (nextSibling && nextSibling.isUnnamedStruct())
+				if (nextSibling && (nextSibling.isUnnamedStruct() || nextSibling.isUnnamedEnum()))
 				{
-					// それが無名構造体なら、名前を typedef のものに置き換え、 typedef 側は削除リストへ
+					// それが無名構造体/列挙型なら、名前を typedef のものに置き換え、 typedef 側は削除リストへ
 					nextSibling.documentSymbol.name = obj.documentSymbol.name;
 					nextSibling.documentSymbol.detail = obj.documentSymbol.detail;
 					nextSibling.documentSymbol.range = obj.documentSymbol.range;

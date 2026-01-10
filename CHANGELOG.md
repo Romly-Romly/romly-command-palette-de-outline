@@ -4,6 +4,10 @@
 
 [English version below](#english英語)
 
+### [1.3.2] - 2026/01/10
+
+- C言語で無名列挙型とtypedefもまとめられるようにした。
+
 ### [1.3.1] - 2026/01/10
 
 - Pythonの時にホバーテキストから関数コメントがうまく取得できていなかった症状を修正
@@ -21,7 +25,7 @@
 
 ### [1.1.0] - 2026/01/08
 
-- Cでtypedefに続く無名構造体をまとめるオプションを追加。ディフォルトで有効になっています。
+- C言語でtypedefに続く無名構造体をまとめるオプションを追加。ディフォルトで有効になっています。
 
 ### [1.0.0] - 2026/01/08
 
@@ -53,6 +57,10 @@
 
 [日本語版(Japanese version above)はこちら](#日本語japanese)
 
+### [1.3.2] - 2026/01/10
+
+- Added support for combining anonymous enum types with typedef in C language.
+
 ### [1.3.1] - 2026/01/10
 
 - Fixed an issue where function comments were not being properly retrieved from hover text in Python.
@@ -70,7 +78,7 @@
 
 ### [1.1.0] - 2026/01/08
 
-- Added option to combine typedef with unnamed struct in C. Enabled by default.
+- Added option to combine typedef with unnamed struct in C language. Enabled by default.
 
 ### [1.0.0] - 2026/01/08
 

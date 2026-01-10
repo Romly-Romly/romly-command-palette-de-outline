@@ -411,7 +411,7 @@ export function activate(context: vscode.ExtensionContext)
 			outlineObjectList.formatCaptions(formatItems);
 		}
 
-		// Cの特別な処理(typedefと直後の無名構造体を結合)
+		// Cの特別な処理(typedefと直後の無名構造体/無名列挙型を結合)
 		if (langId === 'c' && config.get<boolean>('c.combineUnnamedStructAndTypedef', true))
 		{
 			outlineObjectList.combineUnnamedStructAndTypedef();
