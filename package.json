@@ -3,7 +3,7 @@
 	"displayName": "Romly Command Palette de Outline",
 	"publisher": "Romly",
 	"description": "Show document outline in the command palette.",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"license": "See LICENSE.txt",
 	"engines": {
 		"vscode": "^1.107.0"
@@ -84,12 +84,14 @@
 				"Romly-CommandPalette-de-Outline.debugMode": {
 					"type": "boolean",
 					"default": false,
-					"description": "%description.debugMode%"
+					"markdownDescription": "%description.debugMode%"
 				},
-				"Romly-CommandPalette-de-Outline.debug.showSymbolKindName": {
-					"type": "boolean",
-					"default": false,
-					"description": "%description.debug.showSymbolKindName%"
+				"Romly-CommandPalette-de-Outline.symbolKindNameDisplay": {
+					"type": "string",
+					"default": "hide",
+					"enum": ["hide", "short", "raw"],
+					"enumDescriptions": ["%description.symbolKindNameDisplay.hide%", "%description.symbolKindNameDisplay.short%", "%description.symbolKindNameDisplay.raw%"],
+					"description": "%description.symbolKindNameDisplay%"
 				},
 				"Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat": {
 					"type": "boolean",
@@ -159,18 +161,22 @@
 					"description": "%description.fetchSymbolHoverText%"
 				},
 				"Romly-CommandPalette-de-Outline.fetchHoverTextLanguageIdBlackList": {
-					"type": ["string", "array"],
+					"type": "array",
 					"default": ["json", "jsonc"],
 					"markdownDescription": "%description.fetchHoverTextLanguageIdBlackList%",
 					"items": { "type": "string" }
 				},
 				"Romly-CommandPalette-de-Outline.hoverTextIndentSpaces": {
-					"type": "number",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 100,
 					"default": 16,
 					"description": "%description.hoverTextIndentSpaces%"
 				},
 				"Romly-CommandPalette-de-Outline.maxOutlineIndent": {
-					"type": "number",
+					"type": "integer",
+					"minimum": 0,
+					"maximum": 12,
 					"default": 4,
 					"description": "%description.maxOutlineIndent%"
 				}

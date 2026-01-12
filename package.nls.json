@@ -5,19 +5,24 @@
 	"description.markdown.stripHeaderMarkers": "Strip hash markers from markdown headings.",
 	"description.c.combineUnnamedStructAndTypedef": "Merge consecutive typedef and unnamed struct/enum in C.",
 	"description.debugMode": "Enable debugging features. This is intended for use by the author during development of this extension, please do not use it.",
-	"description.debug.showSymbolKindName": "Show symbol kind name instead of icon.",
-	"description.enableSymbolFilters": "Enable symbol filters.",
 
-	"description.symbolFilters": "Specify filters for symbols to hide. `enableSymbolFilters` must be enabled.",
-	"description.symbolFilters.documentPattern": "Glob pattern for file names to apply this filter list. Ex: **/*.ts",
-	"description.symbolFilters.filters": "List of glob pattern filters matching symbols to hide. Ex: [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"]",
+	"description.symbolKindNameDisplay": "Display method for symbol kind names.",
+
+	"description.enableSymbolFilters": "Enable symbol filters.",
+	"description.symbolKindNameDisplay.hide": "Hide",
+	"description.symbolKindNameDisplay.short": "Short",
+	"description.symbolKindNameDisplay.raw": "Raw",
+
+	"description.symbolFilters": "Specify filters for symbols to hide. `#Romly-CommandPalette-de-Outline.enableSymbolFilters#` must be enabled.",
+	"description.symbolFilters.documentPattern": "Glob pattern for file names to apply this filter list. (e.g. **/*.ts)",
+	"description.symbolFilters.filters": "List of glob pattern filters matching symbols to hide. (e.g. [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"])",
 
 	"description.enableSymbolCaptionFormat": "Enable symbol name formatting.",
 
-	"description.symbolCaptionFormatter": "Replacement rule settings for formatting symbol names in the outline view to improve readability. `enableSymbolCaptionFormat` must be enabled.",
+	"description.symbolCaptionFormatter": "Replacement rule settings for formatting symbol names in the outline view to improve readability. `#Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat#` must be enabled.",
 	"description.symbolCaptionFormatter.languageIds": "Language IDs to apply this replacement rule list.",
 	"description.symbolCaptionFormatter.formatters": "List of replacement rules. The first rule that matches the symbol kind will be applied.",
-	"description.symbolCaptionFormatter.formatter.symbolKinds": "The name of the symbol kind(s) to apply this replacement. Ex: Function, Variable, Method, Constructor, Interface, Class, Enum, etc. At least one symbol kind must be specified.",
+	"description.symbolCaptionFormatter.formatter.symbolKinds": "The name of the symbol kind(s) to apply this replacement. (e.g. Function, Variable, Method, Constructor, Interface, Class, Enum, etc.) At least one symbol kind must be specified.",
 	"description.symbolCaptionFormatter.formatter.regexp": "Regular expression pattern to search for.",
 	"description.symbolCaptionFormatter.formatter.replacement": "Replacement string. Regular expression capture groups can be used.",
 
@@ -25,7 +30,7 @@
 	"description.fetchSymbolHoverText.none": "Do not fetch hover text.",
 	"description.fetchSymbolHoverText.description": "Display in the description area. (right of the item)",
 	"description.fetchSymbolHoverText.detail": "Display in the detail area. (below the item)",
-	"description.fetchHoverTextLanguageIdBlackList": "List of language IDs for which hover text will not be fetched. Ex: `[\"json\", \"jsonc\"]`",
+	"description.fetchHoverTextLanguageIdBlackList": "List of language IDs for which hover text will not be fetched. (e.g. `[\"json\", \"jsonc\"]`)",
 
 	"description.hoverTextIndentSpaces": "Number of spaces to insert on the left when displaying hover text in the detail area.",
 	"description.maxOutlineIndent": "Maximum depth of symbols to display in the outline. Set to 0 to show all levels, 1 to show top-level only."

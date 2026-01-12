@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as Utils from './utils';
 import { SymbolCaptionFormatItem } from './symbolCaptionFormatter';
-import { MyQuickPickItemBase, MyQuickPickItemButton } from './myQuickPickItemBase';
+import { RyQuickPickItemBase, RyQuickPickItemButton } from './ryQuickPickItemBase';
 import { SymbolFilter } from './symbolFilter';
 
 
@@ -67,6 +67,8 @@ export class MyOutlineObject
 
 
 
+type SymbolKindNameDisplay = 'hide' | 'short' | 'raw';
+
 // クイックピック用のアイテムに変換する時のオプション
 export class MyConvertOption
 {
@@ -84,8 +86,8 @@ export class MyConvertOption
 
 	readonly indentString: string = '';
 
-	// シンボルの種類名を表示する？
-	readonly showSymbolKindName: boolean = false;
+	// シンボルの種類名をどうやって表示する？
+	readonly symbolKindNameDisplay: SymbolKindNameDisplay;
 
 	constructor (config: vscode.WorkspaceConfiguration, languageId: string, totalLines: number)
 	{
@@ -93,11 +95,11 @@ export class MyConvertOption
 		this.showLineNumber = config.get<boolean>('showLineNumber', true);
 		this.stripMarkdownHeadingMarkers = config.get<boolean>('markdown.stripHeaderMarkers', true);
 		this.indentString = config.get<string>('indentString', '   ');
-		this.showSymbolKindName = config.get<boolean>('debug.showSymbolKindName', false);
+		this.symbolKindNameDisplay = config.get<SymbolKindNameDisplay>('symbolKindNameDisplay', 'hide');
 		if (this.showLineNumber)
 		{
 			// 必要な桁数を算出
-			this.lineNumberDigits = Math.floor(Math.log10(totalLines)) + 1;
+			this.lineNumberDigits = Utils.getDigitsCount(totalLines);
 		}
 		else
 		{
@@ -157,9 +159,84 @@ function getSymbolKindIconName(kind: vscode.SymbolKind): string
 
 
 /**
+ * シンボルの種類を短い名前に変換する。
+ * @param kind
+ * @returns
+ */
+function shortenSymbolKindName(kind: vscode.SymbolKind): string
+{
+	switch (kind)
+	{
+		case vscode.SymbolKind.Constant:	return 'const';
+		case vscode.SymbolKind.Variable:	return 'var';
+		case vscode.SymbolKind.Struct:		return 'struct';
+		case vscode.SymbolKind.Interface:	return 'interface';
+		case vscode.SymbolKind.Enum:		return 'enum';
+		case vscode.SymbolKind.EnumMember:	return 'member';
+		case vscode.SymbolKind.Function:	return 'func';
+		case vscode.SymbolKind.Field:		return 'field';
+		case vscode.SymbolKind.Boolean:		return 'bool';
+		case vscode.SymbolKind.String:		return 'str';
+		case vscode.SymbolKind.Array:		return 'ary';
+		case vscode.SymbolKind.Module:		return 'mod';
+		case vscode.SymbolKind.Property:	return 'prop';
+		case vscode.SymbolKind.Method:		return 'method';
+		case vscode.SymbolKind.Class:		return 'cls';
+		case vscode.SymbolKind.Number:		return 'num';
+		case vscode.SymbolKind.Constructor: return 'constructor';
+
+		default:
+			return vscode.SymbolKind[kind];
+	}
+}
+
+
+
+
+
+
+
+
+
+
+/**
+ * シンボルの種類を、項目に表示する形式の文字列に変換する。
+ * @param kind
+ * @param display
+ * @returns
+ */
+function getSymbolKindName(kind: vscode.SymbolKind, display: SymbolKindNameDisplay): string
+{
+	let symbolKindName = '';
+	if (display === 'raw')
+	{
+		symbolKindName += `${vscode.SymbolKind[kind]}`;
+	}
+	else if (display === 'short')
+	{
+		symbolKindName += shortenSymbolKindName(kind);
+	}
+	if (symbolKindName.length > 0)
+	{
+		symbolKindName = `[${symbolKindName}] `;
+	}
+
+	return symbolKindName;
+}
+
+
+
+
+
+
+
+
+
+
+/**
  * シンボルを表示し、ジャンプする機能を持つクイックピックアイテム。
  */
-export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
+export class MyJumpToSymbolQuickPickItem extends RyQuickPickItemBase
 {
 	label: string;
 
@@ -189,20 +266,12 @@ export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 			{
 				lineNumberStr = lineNum.toString();
 			}
-			lineNumberStr = ':' + lineNumberStr + ' ';
+			lineNumberStr += ': ';
 		}
 
 		// アイコンを付与
-		let iconName = '';
-		if (option.showSymbolKindName)
-		{
-			iconName = `[${vscode.SymbolKind[outlineObject.documentSymbol.kind]}] `;
-		}
-		else
-		{
-			iconName = getSymbolKindIconName(outlineObject.documentSymbol.kind);
-			if (iconName.length > 0) { iconName = `\$(${iconName}) `; }
-		}
+		let iconName = getSymbolKindIconName(outlineObject.documentSymbol.kind);
+		if (iconName.length > 0) { iconName = `\$(${iconName}) `; }
 
 		const isMarkdown = option.languageId === 'markdown';
 		let caption = outlineObject.documentSymbol.name;
@@ -211,7 +280,7 @@ export class MyJumpToSymbolQuickPickItem extends MyQuickPickItemBase
 			caption = caption.replace(/^#+\s*/, '');
 		}
 
-		this.label = lineNumberStr + this.indentString + iconName + caption;
+		this.label = lineNumberStr + this.indentString + iconName + getSymbolKindName(outlineObject.documentSymbol.kind, option.symbolKindNameDisplay) + caption;
 		this.description = outlineObject.documentSymbol.detail;
 	}
 
@@ -554,7 +623,7 @@ export class MyOutlineObjectList
 			if (debugMode)
 			{
 				// ホバーテキストを取得してクリップボードにコピーするボタン
-				const hoverTextCopyButton = new MyQuickPickItemButton(new vscode.ThemeIcon('debug-hint'), async (context) =>
+				const hoverTextCopyButton = new RyQuickPickItemButton(new vscode.ThemeIcon('debug-hint'), async (context) =>
 				{
 					const hoverText = await item.fetchHoverText();
 					Utils.copyToClipboard(hoverText);

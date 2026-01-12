@@ -1,6 +1,6 @@
 {
-	"Yes, please": "うん。そうして",
 	"No active text editor.": "アクティブなエディターがありません。",
+	"Yes, please": "うん。そうして",
 	"No document symbols found in document: {0}": "ドキュメント {0} にシンボル情報が見つかりません。",
 	"No symbols to show after filtering in document: {0}": "フィルタを適用した結果、ドキュメント {0} に表示するシンボルがありません。",
 	"Copy Document Symbols to Clipboard": "ドキュメントのシンボル情報をクリップボードにコピー",

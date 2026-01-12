@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as Utils from './utils';
 import { MyOutlineObjectList, MyJumpToSymbolQuickPickItem, MyConvertOption } from './myOutlineObject';
-import { MyQuickPickItemBase, MyQuickPickItemButton } from './myQuickPickItemBase';
+import { RyQuickPickItemBase, RyQuickPickItemButton } from './ryQuickPickItemBase';
 import { SymbolFilter, SymbolFilterConfig } from './symbolFilter';
 import { SymbolCaptionFormatter, SymbolCaptionFormatItem } from './symbolCaptionFormatter';
 
@@ -144,7 +144,7 @@ function printSymbolTree(symbols: vscode.DocumentSymbol[], s: string[], indent =
 
 
 // カスタムアクションを代入できるクラス
-class MyQuickPickItemCustomAction extends MyQuickPickItemBase
+class MyQuickPickItemCustomAction extends RyQuickPickItemBase
 {
 	label: string;
 	private action: (context: vscode.ExtensionContext) => void | Promise<void>;
@@ -191,7 +191,7 @@ class MyQuickPickItemCustomAction extends MyQuickPickItemBase
 /**
  * ドキュメントシンボルをクリップボードにコピーする独自クラス
  */
-class MyCopyDocumentSymbolsToClipboardQuickPickItem extends MyQuickPickItemBase
+class MyCopyDocumentSymbolsToClipboardQuickPickItem extends RyQuickPickItemBase
 {
 	label = vscode.l10n.t('Copy Document Symbols to Clipboard');
 	description = vscode.l10n.t('for Debug');
@@ -306,7 +306,7 @@ function createQuickPick(editor: vscode.TextEditor, items: vscode.QuickPickItem[
 	quickPick.onDidAccept(async () =>
 	{
 		const selected = quickPick.selectedItems[0];
-		if (selected && selected instanceof MyQuickPickItemBase)
+		if (selected && selected instanceof RyQuickPickItemBase)
 		{
 			await selected.execute(undefined);
 		}
@@ -316,7 +316,7 @@ function createQuickPick(editor: vscode.TextEditor, items: vscode.QuickPickItem[
 	// アイテムのボタンが押された時の処理
 	quickPick.onDidTriggerItemButton(async (e) =>
 	{
-		if (e.button instanceof MyQuickPickItemButton)
+		if (e.button instanceof RyQuickPickItemButton)
 		{
 			await e.button.execute(undefined);
 		}
@@ -347,7 +347,7 @@ export function activate(context: vscode.ExtensionContext)
 		const editor = vscode.window.activeTextEditor;
 		if (!editor)
 		{
-			Utils.showVeryLightMessage(vscode.l10n.t('No active text editor.'));
+			Utils.showVeryLightMessage('No active text editor.');
 			return;
 		}
 
@@ -434,7 +434,7 @@ export function activate(context: vscode.ExtensionContext)
 			addExtraItems(quickPickItems);
 		}
 
-		// クイックピックの表示
+		// QuickPick を表示
 		const quickPick = createQuickPick(editor, quickPickItems);
 		quickPick.show();
 
@@ -443,8 +443,7 @@ export function activate(context: vscode.ExtensionContext)
 		if (fetchSymbolHoverText.trim().length > 0 && fetchSymbolHoverText !== "none")
 		{
 			// 言語IDブラックリストに含まれている場合は取得しない
-			let langIdlackList = config.get<string | string[]>('fetchHoverTextLanguageIdBlackList', []);
-			langIdlackList = Array.isArray(langIdlackList) ? langIdlackList : [langIdlackList];
+			const langIdlackList = config.get<string[]>('fetchHoverTextLanguageIdBlackList', []);
 			if (!(langIdlackList.includes(langId)))
 			{
 				let numSpaces = 0;

@@ -4,6 +4,12 @@
 
 [English version below](#english英語)
 
+### [1.3.3] - 2026/01/12
+
+- シンボルの種類の名前をアイコンと共に表示できるように。また短い名前で表示できるようにした。
+- ディフォルトのフィルタ設定を一部調整。
+- その他細かい修正。
+
 ### [1.3.2] - 2026/01/10
 
 - C言語で無名列挙型とtypedefもまとめられるようにした。
@@ -56,6 +62,11 @@
 ## English(英語)
 
 [日本語版(Japanese version above)はこちら](#日本語japanese)
+
+### [1.3.3] - 2026/01/12
+- Added ability to display symbol type names with icons and show them in short form.
+- Adjusted some default filter settings.
+- Other minor fixes.
 
 ### [1.3.2] - 2026/01/10
 

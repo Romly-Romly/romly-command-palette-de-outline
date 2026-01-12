@@ -5,16 +5,21 @@
 	"description.markdown.stripHeaderMarkers": "マークダウンの見出しの # を除去する。",
 	"description.c.combineUnnamedStructAndTypedef": "Cでtypedefに続く無名構造体/列挙型をまとめる。",
 	"description.debugMode": "デバッグ用の機能を有効にする。作者がこの拡張機能名を開発する時用なので、使用しないでください。",
-	"description.debug.showSymbolKindName": "アイコンの代わりにシンボルの種類の名前を表示する。",
+
+	"description.symbolKindNameDisplay": "シンボルの種類の名前の表示方法。",
+	"description.symbolKindNameDisplay.hide": "非表示",
+	"description.symbolKindNameDisplay.short": "短縮して表示",
+	"description.symbolKindNameDisplay.raw": "そのまま表示",
+
 	"description.enableSymbolFilters": "シンボルのフィルタリングを有効にする。",
 
-	"description.symbolFilters": "非表示にするシンボルのフィルタを指定。 `enableSymbolFilters` が有効である必要があります。",
+	"description.symbolFilters": "非表示にするシンボルのフィルタを指定。 `#Romly-CommandPalette-de-Outline.enableSymbolFilters#` が有効である必要があります。",
 	"description.symbolFilters.documentPattern": "このフィルタリストを適用するファイル名のグロブパターン。例: **/*.ts",
 	"description.symbolFilters.filters": "非表示にするシンボルにマッチするグロブパターン形式のフィルタのリスト。 例: [\"**/Function/Variable\", \"**/Constructor/Variable\", \"**/Method/Variable\"]",
 
 	"description.enableSymbolCaptionFormat": "アウトライン表示時の整形を有効にする。",
 
-	"description.symbolCaptionFormatter": "アウトライン表示時のシンボル名を見やすいよう整形する時の置換ルール設定。`enableSymbolCaptionFormat` が有効である必要があります。",
+	"description.symbolCaptionFormatter": "アウトライン表示時のシンボル名を見やすいよう整形する時の置換ルール設定。`#Romly-CommandPalette-de-Outline.enableSymbolCaptionFormat#` が有効である必要があります。",
 	"description.symbolCaptionFormatter.languageIds": "この置換ルールリストを適用する言語IDのリスト。",
 	"description.symbolCaptionFormatter.formatters": "置換ルールのリスト。シンボルの種類の名前が一致した最初のルールが適用されます。",
 	"description.symbolCaptionFormatter.formatter.symbolKinds": "この置換を適用するシンボルの種類の名前。例: Function, Variable, Method, Constructor, Interface, Class, Enum, など。最低1つは指定する必要があります。",

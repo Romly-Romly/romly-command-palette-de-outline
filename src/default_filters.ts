@@ -22,8 +22,8 @@ const defaultFilters =
 			"**/Function/Variable",
 			"**/Constructor/Variable",
 			"**/Method/Variable",
+			"**/Method/Property",
 			"**/Interface/Property",
-			"**/Class/Property",
 			"**/Constructor/Property",
 			"**/Property/Property",
 		]
